@@ -1,7 +1,66 @@
 THIS IS A DOCUMENTATION OF THE MISTAKES I MADE AND THE THINGS I LEARNT WHILE CREATING THIS PROJECT
 
 .........................................................................................................................
+File Structure and Explanation
+Here's a detailed breakdown of each file's purpose in the project:
 
+1. models/__init__.py
+This file initializes the models package and exposes the database models (Agent, Property, Buyer) to other parts of the application. It also declares the Base object, which all models inherit from to establish their table mappings.
+
+Base: The core SQLAlchemy class that sets up the schema for your models.
+Agent, Property, Buyer: These imports ensure that Alembic can detect these models during migrations.
+2. models/agent.py
+Defines the Agent class, which maps to the agents table in the database. Each agent can manage multiple properties, making this a crucial class for handling real estate agents and their assigned properties.
+
+Columns: id, name, and phone.
+Relationship: Defines a one-to-many relationship with the Property class.
+3. models/property.py
+Defines the Property class, which maps to the properties table in the database. Each property is linked to an agent via a foreign key (agent_id), which tracks which agent is responsible for the property.
+
+Columns: id, name, price, and agent_id.
+Foreign Key: Links the property to the Agent class through the agent_id.
+Relationship: Establishes a reverse relationship with the Agent class.
+4. models/buyer.py
+Defines the Buyer class, which maps to the buyers table in the database. It stores basic information about buyers, including their name and email address.
+
+Columns: id, name, and email.
+5. cli/main.py
+This is the core command-line interface (CLI) file. It provides users with a menu-driven interface to interact with the system. Users can add agents, properties, and buyers, as well as view all agents, properties, and buyers.
+
+Database Operations: Each function interacts with the database to either create or retrieve data.
+Session Management: The session object is used to commit transactions to the database.
+How It Met the Requirements
+1. Configuration of Environment and Dependencies
+Pipfile contains only the necessary dependencies (sqlalchemy, alembic, tabulate).
+Imports are clean and only used in the files where necessary (e.g., models are imported only in cli/main.py).
+The project uses Pipenv for dependency management and virtual environments.
+2. SQLAlchemy Schema Design
+3+ tables: The project includes three tables—Agent, Property, and Buyer.
+One-to-many relationship: The relationship between Agent and Property is a one-to-many relationship.
+Alembic Migrations: Alembic is used for managing migrations. Database tables are created and migrated separately.
+SQLAlchemy ORM Methods: The ORM methods (add, query, commit, etc.) are used to interact with the database.
+3. Use of Data Structures
+Lists: Used when retrieving and displaying all agents, properties, and buyers in a tabulated format.
+Dictionaries and Tuples: Could be used in future improvements for more complex data operations, like querying properties by attributes.
+4. Best Practices in CLI Design
+Separation of Logic: The CLI functions are separated from the models and database logic.
+Validation: Basic validation is performed to ensure that inputs are provided correctly (e.g., price must be an integer).
+User-friendly Messages: Prompts and success messages are provided throughout the CLI to ensure users understand the flow.
+5. Documentation
+A README.md file provides an overview of the project, including setup instructions and usage guidelines.
+Future Improvements
+1. Many-to-Many Relationships
+Buyer-Property Relationship: A buyer can be interested in multiple properties. To implement this, a many-to-many relationship can be introduced between Buyer and Property using an association table. This would allow buyers to mark properties they are interested in.
+2. Property Search Functionality
+Filter by Price or Location: Implement advanced search filters that allow users to filter properties based on price range, location, or agent.
+Buyer Recommendations: Based on past purchases or inquiries, the system could suggest properties to buyers.
+3. User Authentication
+User Roles: Add user authentication with roles (admin, agent). Admins could manage agents, while agents could only manage properties.
+Login System: Implement a login system for agents and admins.
+4. Error Handling and Validation
+Input Validation: Enhance input validation to prevent invalid data from being entered (e.g., check that email is valid, property price is non-negative).
+Exception Handling: Add robust exception handling to deal with edge cases like database connection failures or invalid agent IDs.
+................................................................................................................
 Real Estate Manager CLI Project Setup and Instructions
 This project will involve creating a Python CLI to manage real estate properties, agents, and buyers using SQLAlchemy ORM. We will also use Alembic for database migrations and build a clear project structure.
 
