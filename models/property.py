@@ -3,6 +3,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from models import Base  # Import the Base class to define the Property model
+from models.buyer_property_association import buyer_property_association
 
 # The Property class represents the 'properties' table in the database
 # It contains columns for id, name, price, and agent_id to reference the managing agent
@@ -22,6 +23,13 @@ class Property(Base):
     # A property is "managed by" an agent, and this establishes a link back to the agent
     agent = relationship("Agent", back_populates="properties")
     
+    # Establish a many-to-many relationship with the Buyer class
+    interested_buyers = relationship(
+        "Buyer",
+        secondary=buyer_property_association,  # Use the association table
+        back_populates="interested_properties"  # Link back to Buyer
+    )
+
     # String representation of the Property object
     # Helps with printing and debugging property information
     def __repr__(self):

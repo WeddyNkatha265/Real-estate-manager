@@ -11,3 +11,4 @@ Base = declarative_base()
 from .agent import Agent
 from .property import Property
 from .buyer import Buyer
+from .buyer_property_association import buyer_property_association

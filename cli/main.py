@@ -38,13 +38,16 @@ session = DBSession()
 # It prints the available options for the user to interact with the system.
 def display_menu():
     print("\nReal Estate Manager CLI")
-    print("1. Add Agent")  # Option to add a new agent
-    print("2. Add Property")  # Option to add a new property
-    print("3. Add Buyer")  # Option to add a new buyer
-    print("4. View All Agents")  # Option to view all agents in the system
-    print("5. View All Properties")  # Option to view all properties
-    print("6. View All Buyers")  # Option to view all buyers
-    print("7. Exit")  # Exit the application
+    print("1. Add Agent")
+    print("2. Add Property")
+    print("3. Add Buyer")
+    print("4. View All Agents")
+    print("5. View All Properties")
+    print("6. View All Buyers")
+    print("7. Express Interest in Property")  # New option for many-to-many relationship
+    print("8. View Buyer's Interested Properties")  # New option to view many-to-many relationship
+    print("9. Exit")
+
 
 # Function to add a new agent to the system.
 # It takes the agent's name and phone number as input and creates a new Agent object.
@@ -159,6 +162,48 @@ def view_all_buyers():
     # Each row contains the buyer's ID, name, and email address
     print(tabulate([[buyer.id, buyer.name, buyer.email] for buyer in buyers], headers=["ID", "Name", "Email"]))
 
+def express_interest_in_property():
+    buyer_id = int(input("Enter buyer ID: "))
+    
+    # Check if the buyer exists
+    buyer = session.query(Buyer).filter_by(id=buyer_id).first()
+    if not buyer:
+        print("Error: No buyer found with the given ID.")
+        return
+
+    property_id = int(input("Enter property ID: "))
+    
+    # Check if the property exists
+    property = session.query(Property).filter_by(id=property_id).first()
+    if not property:
+        print("Error: No property found with the given ID.")
+        return
+
+    # Add the property to the buyer's interested_properties list
+    buyer.interested_properties.append(property)
+    
+    # Commit the changes to the database
+    session.commit()
+    
+    print(f"Buyer {buyer.name} is now interested in property {property.name}.")
+
+def view_buyer_interested_properties():
+    buyer_id = int(input("Enter buyer ID: "))
+
+    # Check if the buyer exists
+    buyer = session.query(Buyer).filter_by(id=buyer_id).first()
+    if not buyer:
+        print("Error: No buyer found with the given ID.")
+        return
+
+    # Print out all the properties this buyer is interested in
+    if buyer.interested_properties:
+        print(f"Buyer {buyer.name} is interested in the following properties:")
+        print(tabulate([[prop.id, prop.name, prop.price] for prop in buyer.interested_properties], headers=["ID", "Name", "Price"]))
+    else:
+        print(f"Buyer {buyer.name} is not interested in any properties yet.")
+
+
 # The main function that controls the flow of the application.
 # It continuously displays the menu and executes the corresponding function based on user input.
 def main():
@@ -170,22 +215,26 @@ def main():
         
         # Based on the user's choice, call the corresponding function
         if choice == '1':
-            add_agent()  # Add a new agent
+            add_agent()
         elif choice == '2':
-            add_property()  # Add a new property
+            add_property()
         elif choice == '3':
-            add_buyer()  # Add a new buyer
+            add_buyer()
         elif choice == '4':
-            view_all_agents()  # View all agents in the system
+            view_all_agents()
         elif choice == '5':
-            view_all_properties()  # View all properties in the system
+            view_all_properties()
         elif choice == '6':
-            view_all_buyers()  # View all buyers in the system
+            view_all_buyers()
         elif choice == '7':
-            print("Exiting...")  # Exit the application
-            break  # Break the loop to exit
+            express_interest_in_property()  # Call the new function to express interest
+        elif choice == '8':
+            view_buyer_interested_properties()  # Call the new function to view interested properties
+        elif choice == '9':
+            print("Exiting...")
+            break
         else:
-            print("Invalid choice, please try again.")  # Handle invalid input
+            print("Invalid choice, please try again.")
 
 # This ensures that the `main()` function is only executed when the script is run directly
 # It prevents the function from being run if the script is imported as a module
