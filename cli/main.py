@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 
 # sys.path.append adds the parent directory to the system path.
 # This is necessary because the `models` folder is located in the parent directory.
@@ -67,10 +68,30 @@ def add_agent():
 # It takes the property's name, price, and associated agent's ID as input and creates a new Property object.
 def add_property():
     # User input for the property's name, price, and the ID of the agent managing it
-    name = input("Enter property name: ")
-    price = int(input("Enter property price: "))  # Ensuring price is an integer
-    agent_id = int(input("Enter agent ID: "))  # Ensuring agent ID is an integer
-    
+    name = input("Enter property name: ").strip()
+    if not name:
+        print("Error: Property name cannot be empty.")
+        return
+
+    try:
+        price = int(input("Enter property price: "))  # Ensuring price is an integer
+        if price <= 0:
+            print("Error: Price must be a positive integer.")
+            return
+    except ValueError:
+        print("Error: Invalid input for price. Please enter a valid integer.")
+        return
+
+    try:
+        agent_id = int(input("Enter agent ID: "))  # Ensuring agent ID is an integer
+        # Check if the agent ID exists in the database
+        agent = session.query(Agent).filter_by(id=agent_id).first()
+        if not agent:
+            print("Error: No agent found with the given ID.")
+            return
+    except ValueError:
+        print("Error: Invalid input for agent ID. Please enter a valid integer.")
+        return
     # Create a new Property object with the input values, linking it to the agent by agent_id
     new_property = Property(name=name, price=price, agent_id=agent_id)
     
@@ -84,10 +105,18 @@ def add_property():
 
 # Function to add a new buyer to the system.
 # It takes the buyer's name and email as input and creates a new Buyer object.
+
+def is_valid_email(email):
+    regex = r'^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+    return re.match(regex, email)
+
 def add_buyer():
     # User input for the buyer's name and email address
     name = input("Enter buyer name: ")
     email = input("Enter buyer email: ")
+    if not is_valid_email(email):
+        print("Error: Invalid email format.")
+        return
     
     # Create a new Buyer object using the input data
     new_buyer = Buyer(name=name, email=email)
